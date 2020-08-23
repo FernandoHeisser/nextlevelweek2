@@ -13,8 +13,10 @@ export default class ClassesController {
         const trx = await db.transaction();
         
         try {
-            const { name, avatar, whatsapp, bio, subject, cost, schedule } = request.body;
-    
+            const { name, avatar, bio, subject, cost, schedule } = request.body;
+
+            var whatsapp = '55'+request.body.whatsapp;
+
             const insertUsersIds = await trx('users').insert({ name, avatar, whatsapp, bio });
     
             const user_id = insertUsersIds[0];
