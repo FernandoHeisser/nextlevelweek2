@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text }from 'react-native'
-import { TouchableOpacity, RectButton } from 'react-native-gesture-handler';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Feather } from '@expo/vector-icons';
 import { Picker } from '@react-native-community/picker';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
-import TeacherItem from '../../components/TeacherItem/index';
+import api from '../../services/api';
+import TeacherItem, { Teacher } from '../../components/TeacherItem/index';
 import PageHeader from '../../components/PageHeader';
 import styles from './styles';
 
@@ -13,6 +14,8 @@ function TeacherList() {
     const [icon, setIcon] = useState("chevron-down");
     const [activated, setActivated] = useState(false);
     const [isTimePickerVisible, setTimePickerVisibility] = useState(false);
+
+    const [teachers, setTeachers] = useState([]);
 
     const [subject, setSubject] = useState('');
     const [weekDay, setWeekDay] = useState('');
@@ -36,10 +39,7 @@ function TeacherList() {
     function filterContainer() {
         if(activated){
             setActivated(false);
-            setIcon("chevron-down"); 
-            setSubject('');
-            setWeekDay('');
-            setTime('');
+            setIcon("chevron-down");
         }else{
             setActivated(true);
             setIcon("chevron-up");
@@ -53,10 +53,24 @@ function TeacherList() {
 
         if(subject === 'Selecione') {
             subjectReceive = '';
+            setSubject('');
         }
         if(weekDay === 'Selecione') {
             weekDayReceive = '';
+            setWeekDay('');
         }
+
+        async function asyncFunction() {
+            const response = await api.get('classes', {
+                params: {
+                    subject,
+                    week_day: weekDay,
+                    time
+                }
+            });
+            setTeachers(response.data);
+        }
+        asyncFunction();
 
         console.log(subjectReceive, weekDayReceive, timeReceive);
     }, [subject, weekDay, time]);
@@ -74,7 +88,7 @@ function TeacherList() {
                         <Text style={styles.label}>Máteria</Text>
                         <View style={styles.select}>
                         <Picker style={styles.timeText} selectedValue={subject} onValueChange={(itemValue)=>setSubject(itemValue.toString())}>
-                            <Picker.Item value='Selecione' label='Selecione' />
+                            <Picker.Item value='' label='Selecione' />
                             <Picker.Item value='Artes' label='Artes' />
                             <Picker.Item value='Biologia' label='Biologia' />
                             <Picker.Item value='Educação Física' label= 'Educação Física' />
@@ -97,7 +111,7 @@ function TeacherList() {
                                 <Text style={styles.label}>Dia da semana</Text>
                                 <View style={styles.select}>
                                     <Picker style={styles.timeText} selectedValue={weekDay} onValueChange={(itemValue)=>setWeekDay(itemValue.toString())}>
-                                        <Picker.Item value='Selecione' label='Selecione' />
+                                        <Picker.Item value='' label='Selecione' />
                                         <Picker.Item value='0' label='Domingo' />
                                         <Picker.Item value='1' label='Segunda-feira' />
                                         <Picker.Item value='2' label='Terça-feira' />
@@ -110,9 +124,14 @@ function TeacherList() {
                             </View>
                             <View style={styles.selectBlock}>
                                 <Text style={styles.label}>Horário</Text>
-                                <RectButton style={styles.select} onPress={showTimePicker}>
+                                <TouchableOpacity
+                                 activeOpacity={.8}
+                                 style={styles.select}
+                                 onPress={showTimePicker}
+                                 onLongPress={()=>setTime('')}
+                                >
                                     <Text style={styles.timeText}>{(time==='')?'Selecione':time}</Text>
-                                </RectButton>
+                                </TouchableOpacity>
                                 <DateTimePickerModal
                                     isVisible={isTimePickerVisible}
                                     date={new Date()}
@@ -132,13 +151,16 @@ function TeacherList() {
                  paddingBottom: 24
              }}
             >
-                <TeacherItem />
-                <TeacherItem />
-                <TeacherItem />
-                <TeacherItem />
-                <TeacherItem />
-                <TeacherItem />
-                <TeacherItem />
+                {(teachers.length > 0)? 
+                    (teachers.map((teacher: Teacher)=>(
+                        <TeacherItem key={teacher.id} teacher={teacher}/>
+                    )))
+                    :
+                    <View style={styles.emptyAlert}>
+                        <Text style={styles.emptyAlertText}>Nenhum proffy encontrado</Text>
+                        <Feather name="frown" size={20} color="#d4c2ff" />
+                    </View>
+                }
             </ScrollView>
         </View>
     );

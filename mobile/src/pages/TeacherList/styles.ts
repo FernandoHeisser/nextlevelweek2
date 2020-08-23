@@ -53,6 +53,18 @@ const styles = StyleSheet.create({
     },
     selectBlock: {
 
+    },
+    emptyAlert: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    emptyAlertText: {
+        color: '#d4c2ff',
+        marginRight: 8,
+        fontSize: 16,
+        fontFamily: 'Archivo_400Regular'
     }
 });
 

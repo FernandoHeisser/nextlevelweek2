@@ -49,13 +49,19 @@ export default class ClassesController {
     }
     async index (request: Request, response: Response){
         const filters = request.query;
-
-        const week_day = filters.week_day as string;
         const subject = filters.subject as string;
         const time = filters.time as string;
+        var week_day = filters.week_day;
 
         const timeInMinutes = convertHourToMinutes(time);
 
+        if(week_day === '') {
+            filters.week_day = undefined;
+            week_day = undefined;
+        } else {
+            week_day = filters.week_day as string;
+        }
+    
         if(!filters.week_day && !filters.subject && !filters.time) {
             const classes = await db('classes')
             .join('users', 'classes.user_id', '=', 'users.id ')

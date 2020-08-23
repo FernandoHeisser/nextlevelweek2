@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Frown } from 'react-feather';
+
 import PageHeader from '../../components/PageHeader';
 import TeacherItem, { Teacher } from '../../components/TeacherItem';
 import Input from '../../components/Input/index';
@@ -82,9 +84,16 @@ function TeacherList() {
                 </form>
             </PageHeader>
             <main>
-                {teachers.map((teacher: Teacher)=>(
-                    <TeacherItem key={teacher.id} teacher={teacher}/>
-                ))}
+                {(teachers.length > 0)? 
+                    (teachers.map((teacher: Teacher)=>(
+                        <TeacherItem key={teacher.id} teacher={teacher}/>
+                    )))
+                    :
+                    <div className="emptyAlert">
+                        <span>Nenhum proffy encontrado</span>
+                        <Frown/>
+                    </div>
+                }
             </main>
         </div>
     );
