@@ -129,7 +129,6 @@ function TeacherForm() {
                             value={whatsapp}
                             min="11"
                             max="11"
-                            
                             onChange={e=>setWhatsapp(e.target.value)}
                         />  
                         <TextArea 
