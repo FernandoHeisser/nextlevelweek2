@@ -1,28 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { View, ScrollView }from 'react-native'
+import AsyncStorage from '@react-native-community/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
-import api from '../../services/api';
-import TeacherItem, { Teacher } from '../../components/TeacherItem/index';
+import TeacherItem, { Teacher } from '../../components/TeacherItem';
 import PageHeader from '../../components/PageHeader';
 import styles from './styles';
 
 function Favorites() {
-
     const [teachers, setTeachers] = useState([]);
 
-    useEffect(()=>{
-        async function asyncFunction() {
-            const response = await api.get('classes', {
-                params: {
-                    subject:'',
-                    week_day:'',
-                    time:''
-                }
-            });
-            setTeachers(response.data);
-        }
-        asyncFunction();
-    }, []);
+    useFocusEffect(()=>{
+        AsyncStorage.getItem('favorites').then(response => {
+            if(response) {
+                const favoritedTeachers = JSON.parse(response);
+                setTeachers(favoritedTeachers);
+            }
+        });
+    });
 
     return (
         <View style={styles.container}>
@@ -35,7 +30,7 @@ function Favorites() {
              }}
             >
                 {teachers.map((teacher: Teacher)=>(
-                    <TeacherItem key={teacher.id} teacher={teacher} favorite={true}/>
+                    <TeacherItem key={teacher.id} teacher={teacher} favorite/>
                 ))}
             </ScrollView>
         </View>

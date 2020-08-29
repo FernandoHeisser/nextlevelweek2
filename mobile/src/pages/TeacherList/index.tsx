@@ -4,6 +4,8 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Feather } from '@expo/vector-icons';
 import { Picker } from '@react-native-community/picker';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import AsyncStorage from '@react-native-community/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 import api from '../../services/api';
 import TeacherItem, { Teacher } from '../../components/TeacherItem/index';
@@ -16,6 +18,7 @@ function TeacherList() {
     const [isTimePickerVisible, setTimePickerVisibility] = useState(false);
 
     const [teachers, setTeachers] = useState([]);
+    const [favorites, setFavorites] = useState<number[]>([]);
 
     const [subject, setSubject] = useState('');
     const [weekDay, setWeekDay] = useState('');
@@ -46,6 +49,18 @@ function TeacherList() {
         }
     }
 
+    useFocusEffect(()=>{
+        AsyncStorage.getItem('favorites').then(response => {
+            if(response) {
+                const favoritedTeachers = JSON.parse(response);
+                const favoritedTeachersIds = favoritedTeachers.map((teacher: Teacher)=>{
+                    return teacher.id;
+                });
+                setFavorites(favoritedTeachersIds);
+            }
+        });
+    })
+
     useEffect(()=>{
         let subjectReceive = subject;
         let weekDayReceive = weekDay;
@@ -60,17 +75,13 @@ function TeacherList() {
             setWeekDay('');
         }
 
-        async function asyncFunction() {
-            const response = await api.get('classes', {
-                params: {
-                    subject,
-                    week_day: weekDay,
-                    time
-                }
-            });
-            setTeachers(response.data);
-        }
-        asyncFunction();
+        api.get('classes', {
+            params: {
+                subject,
+                week_day: weekDay,
+                time
+            }
+        }).then(response => setTeachers(response.data));
 
         console.log(subjectReceive, weekDayReceive, timeReceive);
     }, [subject, weekDay, time]);
@@ -153,7 +164,7 @@ function TeacherList() {
             >
                 {(teachers.length > 0)? 
                     (teachers.map((teacher: Teacher)=>(
-                        <TeacherItem key={teacher.id} teacher={teacher}/>
+                        <TeacherItem key={teacher.id} teacher={teacher} favorite={favorites.includes(teacher.id)}/>
                     )))
                     :
                     <View style={styles.emptyAlert}>

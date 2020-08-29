@@ -19,8 +19,8 @@ export default function App() {
   } else {
     return (
       <>
-        <AppStack />
         <StatusBar style="light"/>
+        <AppStack />
       </>
     );
   }

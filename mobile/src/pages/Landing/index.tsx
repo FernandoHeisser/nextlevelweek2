@@ -24,10 +24,7 @@ function Landing() {
     }
 
     useEffect(()=>{
-        api.get('connections').then(response => {
-            const { total } = response.data;
-            setTotalConnections(total);
-        });
+        api.get('connections').then(response => setTotalConnections(response.data.total));
     }, []);
 
     return (
